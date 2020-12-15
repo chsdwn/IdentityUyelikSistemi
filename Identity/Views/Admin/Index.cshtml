@@ -1,0 +1,18 @@
+@model List<AppUser>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Admin Index</h1>
+
+@if (Model.Any())
+{
+    <ul>
+        @foreach (var user in Model)
+        {
+            <li>@user.UserName</li>
+        }
+    </ul>
+}

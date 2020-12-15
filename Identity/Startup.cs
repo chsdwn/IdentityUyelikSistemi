@@ -31,7 +31,7 @@ namespace Identity
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("Sqlite")));
 
-            services.AddIdentity<AppUser, IdentityRole>()
+            services.AddIdentity<AppUser, AppRole>()
                 .AddEntityFrameworkStores<AppIdentityDbContext>();
 
             services.AddMvc();
