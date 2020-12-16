@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Identity.CustomValidation;
 using Identity.Data;
 using Identity.Models;
 using Microsoft.AspNetCore.Builder;
@@ -38,7 +39,9 @@ namespace Identity
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
-            }).AddEntityFrameworkStores<AppIdentityDbContext>();
+            })
+                .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddPasswordValidator<CustomPasswordValidator>();
 
             services.AddControllersWithViews();
         }
