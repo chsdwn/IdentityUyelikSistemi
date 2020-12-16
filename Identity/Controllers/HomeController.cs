@@ -9,10 +9,14 @@ namespace Identity.Controllers
     public class HomeController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
 
-        public HomeController(UserManager<AppUser> userManager)
+        public HomeController(
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         public IActionResult Index()
@@ -25,11 +29,19 @@ namespace Identity.Controllers
             return View();
         }
 
-        // [HttpPost]
-        // public IActionResult Login()
-        // {
-        //     return View();
-        // }
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user is null)
+                return BadRequest();
+
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
+            if (result.Succeeded)
+                return RedirectToAction("Index", "Member");
+
+            return View();
+        }
 
         public IActionResult SignUp()
         {
