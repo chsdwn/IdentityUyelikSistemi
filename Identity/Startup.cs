@@ -39,6 +39,9 @@ namespace Identity
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
+
+                options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
             })
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
                 .AddPasswordValidator<CustomPasswordValidator>();
