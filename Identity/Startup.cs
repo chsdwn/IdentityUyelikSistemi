@@ -32,27 +32,6 @@ namespace Identity
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("Sqlite")));
 
-            var cookieBuilder = new CookieBuilder()
-            {
-                Name = "MyBlog",
-                HttpOnly = false,
-                // Sadece site üzerinden gelen cookie'leri kaydeder
-                // Çok güvenlik gerekmeyen siteler için Lax modu
-                // Güvenliğin çok önemli olduğu sitelerde Strict modu
-                SameSite = SameSiteMode.Lax,
-                // Cookie'nin https üzerinden gelip gelmeyeceğini ayarlar
-                SecurePolicy = CookieSecurePolicy.SameAsRequest
-            };
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = new PathString("/home/login");
-                options.Cookie = cookieBuilder;
-                // Cookie ömrü bitmeden istek yaparsa cookie ömrü kadar daha uzar.
-                options.SlidingExpiration = true;
-                options.ExpireTimeSpan = TimeSpan.FromDays(60);
-            });
-
             services.AddIdentity<AppUser, AppRole>(options =>
             {
                 options.Password.RequiredLength = 4;
@@ -68,6 +47,27 @@ namespace Identity
                 .AddPasswordValidator<CustomPasswordValidator>()
                 .AddUserValidator<CustomUserValidator>()
                 .AddErrorDescriber<TurkishErrorDescriber>();
+
+            var cookie = new CookieBuilder()
+            {
+                Name = "MyBlog",
+                HttpOnly = false,
+                // Sadece site üzerinden gelen cookie'leri kaydeder
+                // Çok güvenlik gerekmeyen siteler için Lax modu
+                // Güvenliğin çok önemli olduğu sitelerde Strict modu
+                SameSite = SameSiteMode.Lax,
+                // Cookie'nin https üzerinden gelip gelmeyeceğini ayarlar
+                SecurePolicy = CookieSecurePolicy.SameAsRequest
+            };
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = new PathString("/home/login");
+                options.Cookie = cookie;
+                // Cookie ömrü bitmeden istek yaparsa cookie ömrü kadar daha uzar.
+                options.SlidingExpiration = true;
+                options.ExpireTimeSpan = TimeSpan.FromDays(60);
+            });
 
             services.AddControllersWithViews();
         }
@@ -85,6 +85,7 @@ namespace Identity
 
             app.UseRouting();
 
+            app.UseAuthorization();
             app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>

@@ -29,6 +29,16 @@ namespace Identity.Controllers
             return View();
         }
 
+        [HttpPost("{ReturnUrl}")]
+        public IActionResult Login(string ReturnUrl)
+        {
+            // TempData, ViewBag ve ViewData'dan farklı olarak
+            // tuttuğu biliye action'lar arası ulaşılabilir.
+            TempData["ReturnUrl"] = ReturnUrl;
+
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -36,9 +46,19 @@ namespace Identity.Controllers
             if (user is null)
                 return BadRequest();
 
-            var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
+            var result = await _signInManager.PasswordSignInAsync(
+                user,
+                model.Password,
+                model.RememberMe,
+                false);
+
             if (result.Succeeded)
+            {
+                if (TempData["ReturnUrl"] != null)
+                    return Redirect(TempData["ReturnUrl"].ToString());
+
                 return RedirectToAction("Index", "Member");
+            }
 
             return View();
         }
