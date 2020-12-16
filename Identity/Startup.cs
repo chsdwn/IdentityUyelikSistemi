@@ -45,7 +45,8 @@ namespace Identity
             })
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
                 .AddPasswordValidator<CustomPasswordValidator>()
-                .AddUserValidator<CustomUserValidator>();
+                .AddUserValidator<CustomUserValidator>()
+                .AddErrorDescriber<TurkishErrorDescriber>();
 
             services.AddControllersWithViews();
         }
