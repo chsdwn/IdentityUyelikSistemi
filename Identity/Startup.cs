@@ -36,7 +36,6 @@ namespace Identity
             {
                 Name = "MyBlog",
                 HttpOnly = false,
-                Expiration = TimeSpan.FromDays(60),
                 // Sadece site üzerinden gelen cookie'leri kaydeder
                 // Çok güvenlik gerekmeyen siteler için Lax modu
                 // Güvenliğin çok önemli olduğu sitelerde Strict modu
@@ -51,6 +50,7 @@ namespace Identity
                 options.Cookie = cookieBuilder;
                 // Cookie ömrü bitmeden istek yaparsa cookie ömrü kadar daha uzar.
                 options.SlidingExpiration = true;
+                options.ExpireTimeSpan = TimeSpan.FromDays(60);
             });
 
             services.AddIdentity<AppUser, AppRole>(options =>

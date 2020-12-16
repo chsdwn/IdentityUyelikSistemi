@@ -1,5 +1,13 @@
+@model Identity.ViewModels.LoginViewModel
+
 @{
     ViewData["Title"] = "Login";
 }
 
 <h1>Login</h1>
+
+<form asp-action="Login">
+    <input asp-for="Email" placeholder="Email" />
+    <input asp-for="Password" type="password" placeholder="Password" />
+    <button type="submit">Giriş</button>
+</form>
