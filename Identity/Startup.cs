@@ -44,7 +44,8 @@ namespace Identity
                 options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
             })
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
-                .AddPasswordValidator<CustomPasswordValidator>();
+                .AddPasswordValidator<CustomPasswordValidator>()
+                .AddUserValidator<CustomUserValidator>();
 
             services.AddControllersWithViews();
         }
