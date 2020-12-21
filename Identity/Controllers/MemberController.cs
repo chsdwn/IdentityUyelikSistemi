@@ -111,5 +111,10 @@ namespace Identity.Controllers
 
             return BadRequest("Güncelleme sırasında hata oluştu");
         }
+
+        public async Task Logout()
+        {
+            await _signInManager.SignOutAsync();
+        }
     }
 }

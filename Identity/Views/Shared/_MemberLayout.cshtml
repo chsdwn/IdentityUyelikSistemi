@@ -21,7 +21,7 @@
         <div style="display: flex; flex-direction: column;">
             <a asp-action="UserEdit" asp-controller="Member">Bilgileri Düzenle</a>
             <a asp-action="PasswordChange" asp-controller="Member">Şifre Değiştir</a>
-            <a asp-action="Logout" asp-controller="Member">Logout</a>
+            <a asp-action="Logout" asp-controller="Member" asp-route-returnUrl="/home/index">Logout</a>
         </div>
     </div>
 </body>

@@ -72,6 +72,8 @@ namespace Identity
                 // Cookie ömrü bitmeden istek yaparsa cookie ömrü kadar daha uzar.
                 options.SlidingExpiration = true;
                 options.ExpireTimeSpan = TimeSpan.FromDays(60);
+                // Bu action çağırılırken belirtilen return url'e otomatik gitmesini sağlar.
+                options.LogoutPath = new PathString("/member/logout");
             });
 
             services.AddMailKit(options =>
