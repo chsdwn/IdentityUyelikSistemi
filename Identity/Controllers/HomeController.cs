@@ -132,7 +132,7 @@ namespace Identity.Controllers
             var link = Url.Action(
                 "ResetPasswordConfirm",
                 "Home",
-                new { userId = user.Id, token, },
+                new { userId = user.Id, token },
                 HttpContext.Request.Scheme);
 
             await _emailService.SendAsync(model.Email, "Şifre Sıfırlama", $"<a href=\"{link}\">Verify</a>");
@@ -144,6 +144,35 @@ namespace Identity.Controllers
         {
             TempData["userId"] = userId;
             TempData["token"] = token;
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPasswordConfirm(
+            // Gelen model içerisinden sadece Password değişkenini alır.
+            [Bind("Password")] ResetPasswordViewModel model)
+        {
+            var userId = TempData["userId"].ToString();
+            var token = TempData["token"].ToString();
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+                return BadRequest("Kullanıcı bulunamadı");
+
+            var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+            if (result.Succeeded)
+            {
+                await _userManager.UpdateSecurityStampAsync(user);
+                Console.WriteLine("Şifreniz sıfırlanmıştır");
+
+                return Redirect(nameof(Login));
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                    Console.WriteLine(error);
+            }
 
             return View();
         }
