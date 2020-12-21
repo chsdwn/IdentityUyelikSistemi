@@ -4,6 +4,7 @@ using Identity.Models;
 using Identity.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using NETCore.MailKit.Core;
 
 namespace Identity.Controllers
 {
@@ -11,13 +12,16 @@ namespace Identity.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IEmailService _emailService;
 
         public HomeController(
             UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager)
+            SignInManager<AppUser> signInManager,
+            IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
         }
 
         public IActionResult Index()
@@ -124,7 +128,14 @@ namespace Identity.Controllers
             if (user is null)
                 return BadRequest("Bu email adresine kayıtlı kullanıcı bulunamadı.");
 
-            var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var link = Url.Action(
+                "ResetPasswordConfirm",
+                "Home",
+                new { userId = user.Id, token, },
+                HttpContext.Request.Scheme);
+
+            await _emailService.SendAsync(model.Email, "Şifre Sıfırlama", $"<a href=\"{link}\">Verify</a>");
 
             return View();
         }

@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NETCore.MailKit.Extensions;
+using NETCore.MailKit.Infrastructure.Internal;
 
 namespace Identity
 {
@@ -46,7 +48,10 @@ namespace Identity
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
                 .AddPasswordValidator<CustomPasswordValidator>()
                 .AddUserValidator<CustomUserValidator>()
-                .AddErrorDescriber<TurkishErrorDescriber>();
+                .AddErrorDescriber<TurkishErrorDescriber>()
+                // NotSupportedException: No IUserTwoFactorTokenProvider<TUser> named 'Default' is registered.
+                // hatası gönderir eğer eklenmezse.
+                .AddDefaultTokenProviders();
 
             var cookie = new CookieBuilder()
             {
@@ -67,6 +72,17 @@ namespace Identity
                 // Cookie ömrü bitmeden istek yaparsa cookie ömrü kadar daha uzar.
                 options.SlidingExpiration = true;
                 options.ExpireTimeSpan = TimeSpan.FromDays(60);
+            });
+
+            services.AddMailKit(options =>
+            {
+                options.UseMailKit(new MailKitOptions
+                {
+                    Server = "127.0.0.1",
+                    Port = 25,
+                    SenderName = "Identity Uyelik Sistemi",
+                    SenderEmail = "admin@a.b"
+                });
             });
 
             services.AddControllersWithViews();
