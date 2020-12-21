@@ -28,6 +28,16 @@ namespace Identity.Controllers
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var model = user.Adapt<UserViewModel>();
 
+            var phoneNumber = model.PhoneNumber;
+            if (phoneNumber.Length == 10)
+            {
+                // 0 (xxx) xxx xx xx
+                var phoneNumberMasked = $"0 ({phoneNumber[0]}{phoneNumber[1]}{phoneNumber[2]}) " +
+                    $"{phoneNumber[3]}{phoneNumber[4]}{phoneNumber[5]} " +
+                    $"{phoneNumber[6]}{phoneNumber[7]} {phoneNumber[8]}{phoneNumber[9]}";
+                model.PhoneNumber = phoneNumberMasked;
+            }
+
             return View(model);
         }
 
@@ -40,8 +50,6 @@ namespace Identity.Controllers
         public async Task<IActionResult> PasswordChange(ChangePasswordViewModel model)
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            if (user is null)
-                return BadRequest("Kullanıcı bulunamadı");
 
             var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!isPasswordCorrect)
@@ -55,6 +63,9 @@ namespace Identity.Controllers
             {
                 await _userManager.UpdateSecurityStampAsync(user);
 
+                // Security Stamp'i güncellediğimiz için, Identity'nin arkaplanda yaptığı
+                // kontrolde kullanıcının cookie'sinde eski security stamp olduğu görüp
+                // çıkış yaptıracak. Bu olmasın diye çıkış yapıp tekrar giriş yapıyoruz.
                 await _signInManager.SignOutAsync();
                 await _signInManager.PasswordSignInAsync(user, model.NewPassword, true, false);
 
@@ -65,6 +76,40 @@ namespace Identity.Controllers
                     Console.WriteLine(error);
 
             return View();
+        }
+
+        public async Task<IActionResult> UserEdit()
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var model = user.Adapt<UserViewModel>();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UserEdit(UserViewModel model)
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            user.UserName = model.UserName;
+            user.Email = model.Email;
+            user.PhoneNumber = model.PhoneNumber;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                await _userManager.UpdateSecurityStampAsync(user);
+
+                await _signInManager.SignOutAsync();
+                await _signInManager.SignInAsync(user, true);
+
+                return View(model);
+            }
+
+            foreach (var error in result.Errors)
+                Console.WriteLine(error.Description);
+
+            return BadRequest("Güncelleme sırasında hata oluştu");
         }
     }
 }
