@@ -1,5 +1,16 @@
+@model Identity.ViewModels.UserViewModel
+
 @{
     ViewData["Title"] = "Member";
+    Layout = "~/Views/Shared/_MemberLayout.cshtml";
 }
 
-<h1>Member Index</h1>
+<h1>Kullanıcı Bilgileri</h1>
+
+<div>
+    <ul>
+        <li>Kullanıcı Adı: @Model.UserName</li>
+        <li>Email: @Model.Email</li>
+        <li>Telefon Numarası: @Model.PhoneNumber</li>
+    </ul>
+</div>

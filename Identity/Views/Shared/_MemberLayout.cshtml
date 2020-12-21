@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>@ViewBag.Title</title>
+</head>
+
+<body>
+    <nav>
+        <a asp-action="Index" asp-controller="Member">Profil</a>
+    </nav>
+
+    <div style="display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                margin-top: 16px;">
+        <div>
+            @RenderBody()
+        </div>
+        <div style="display: flex; flex-direction: column;">
+            <a asp-action="UserEdit" asp-controller="Member">Bilgileri Düzenle</a>
+            <a asp-action="PasswordChange" asp-controller="Member">Şifre Değiştir</a>
+            <a asp-action="Logout" asp-controller="Member">Logout</a>
+        </div>
+    </div>
+</body>
+
+</html>
