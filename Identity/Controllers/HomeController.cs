@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Identity.Models;
 using Identity.ViewModels;
@@ -46,6 +47,9 @@ namespace Identity.Controllers
             if (user is null)
                 return BadRequest();
 
+            if (await _userManager.IsLockedOutAsync(user))
+                Console.WriteLine("Hesabınız kilitlenmiştir. 20 dakika sonra tekrar deneyin.");
+
             var result = await _signInManager.PasswordSignInAsync(
                 user,
                 model.Password,
@@ -54,11 +58,31 @@ namespace Identity.Controllers
 
             if (result.Succeeded)
             {
+                await _userManager.ResetAccessFailedCountAsync(user);
+
                 if (TempData["ReturnUrl"] != null)
                     return Redirect(TempData["ReturnUrl"].ToString());
 
                 return RedirectToAction("Index", "Member");
             }
+            else
+            {
+                await _userManager.AccessFailedAsync(user);
+
+                int failCount = await _userManager.GetAccessFailedCountAsync(user);
+                Console.WriteLine($"{failCount} kez başarısız giriş denemesi yaptınız");
+
+                if (failCount is 3)
+                {
+                    await _userManager.SetLockoutEndDateAsync(
+                        user,
+                        new DateTimeOffset(DateTime.UtcNow.AddMinutes(20)));
+
+                    Console.WriteLine("3 başarısız giriş denemesi yaptığınız için hesabınız 20 dk kitlenmiştir");
+                }
+            }
+
+            Console.WriteLine("Kullanıcı adı veya şifre yanlış");
 
             return View();
         }
