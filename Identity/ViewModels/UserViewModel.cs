@@ -1,4 +1,6 @@
+using System;
 using System.ComponentModel.DataAnnotations;
+using Identity.Models;
 
 namespace Identity.ViewModels
 {
@@ -12,6 +14,9 @@ namespace Identity.ViewModels
         [Required(ErrorMessage = "Email Gerekli")]
         [EmailAddress(ErrorMessage = "Email adresi yanlış")]
         public string Email { get; set; }
+        public string City { get; set; }
+        public string Gender { get; set; }
+        public DateTime? BirthDate { get; set; }
         [Required(ErrorMessage = "Şifre belirleyiniz")]
         [Display(Name = "Şifre")]
         [DataType(DataType.Password)]

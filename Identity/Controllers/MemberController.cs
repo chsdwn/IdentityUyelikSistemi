@@ -94,6 +94,9 @@ namespace Identity.Controllers
             user.UserName = model.UserName;
             user.Email = model.Email;
             user.PhoneNumber = model.PhoneNumber;
+            user.City = model.City;
+            user.Gender = model.Gender;
+            user.BirthDate = model.BirthDate;
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)

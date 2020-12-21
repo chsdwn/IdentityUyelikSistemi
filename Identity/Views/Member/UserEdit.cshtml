@@ -7,9 +7,16 @@
 
 <h1>Kullanıcı Bilgilerini Düzenle</h1>
 
-<form asp-action="UserEdit">
+<form asp-action="UserEdit" style="display: flex; flex-direction: column;">
     <input asp-for="UserName" placeholder="Kullanıcı Adı" />
     <input asp-for="Email" placeholder="Email" />
     <input asp-for="PhoneNumber" placeholder="Telefon Numarası" />
+    <input asp-for="City" placeholder="Şehir" />
+    <select asp-for="Gender">
+        <option value="Belirtilmemiş">Belirtilmemiş</option>
+        <option value="Erkek">Erkek</option>
+        <option value="Kadın">Kadın</option>
+    </select>
+    <input asp-for="BirthDate" placeholder="Doğum Tarihi">
     <button type="submit">Güncelle</button>
 </form>
