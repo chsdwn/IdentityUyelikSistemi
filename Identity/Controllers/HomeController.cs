@@ -34,7 +34,7 @@ namespace Identity.Controllers
         public IActionResult Login(string ReturnUrl)
         {
             // TempData, ViewBag ve ViewData'dan farklı olarak
-            // tuttuğu biliye action'lar arası ulaşılabilir.
+            // tuttuğu bilgiye action'lar arası ulaşılabilir.
             TempData["ReturnUrl"] = ReturnUrl;
 
             return View();
@@ -108,6 +108,23 @@ namespace Identity.Controllers
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
                 return RedirectToAction("Login");
+
+            return View();
+        }
+
+        public IActionResult ResetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user is null)
+                return BadRequest("Bu email adresine kayıtlı kullanıcı bulunamadı.");
+
+            var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             return View();
         }
