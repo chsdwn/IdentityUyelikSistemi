@@ -10,23 +10,18 @@ using Microsoft.AspNetCore.Mvc;
 namespace Identity.Controllers
 {
     [Authorize]
-    public class MemberController : Controller
+    public class MemberController : BaseController
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signInManager;
-
         public MemberController(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager)
+            : base(userManager, signInManager)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> IndexAsync()
+        public IActionResult IndexAsync()
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var model = user.Adapt<UserViewModel>();
+            var model = CurrentUser.Adapt<UserViewModel>();
 
             var phoneNumber = model.PhoneNumber;
             if (phoneNumber.Length == 10)
@@ -49,25 +44,23 @@ namespace Identity.Controllers
         [HttpPost]
         public async Task<IActionResult> PasswordChange(ChangePasswordViewModel model)
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-
-            var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.Password);
+            var isPasswordCorrect = await _userManager.CheckPasswordAsync(CurrentUser, model.Password);
             if (!isPasswordCorrect)
                 return BadRequest("Şifreniz yanlış");
 
             if (model.NewPassword != model.NewPasswordConfirm)
                 return BadRequest("Yeni şifreniz uyuşmuyor");
 
-            var result = await _userManager.ChangePasswordAsync(user, model.Password, model.NewPassword);
+            var result = await _userManager.ChangePasswordAsync(CurrentUser, model.Password, model.NewPassword);
             if (result.Succeeded)
             {
-                await _userManager.UpdateSecurityStampAsync(user);
+                await _userManager.UpdateSecurityStampAsync(CurrentUser);
 
                 // Security Stamp'i güncellediğimiz için, Identity'nin arkaplanda yaptığı
                 // kontrolde kullanıcının cookie'sinde eski security stamp olduğu görüp
                 // çıkış yaptıracak. Bu olmasın diye çıkış yapıp tekrar giriş yapıyoruz.
                 await _signInManager.SignOutAsync();
-                await _signInManager.PasswordSignInAsync(user, model.NewPassword, true, false);
+                await _signInManager.PasswordSignInAsync(CurrentUser, model.NewPassword, true, false);
 
                 return Redirect("Index");
             }
@@ -78,10 +71,9 @@ namespace Identity.Controllers
             return View();
         }
 
-        public async Task<IActionResult> UserEdit()
+        public IActionResult UserEdit()
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var model = user.Adapt<UserViewModel>();
+            var model = CurrentUser.Adapt<UserViewModel>();
 
             return View(model);
         }
@@ -89,22 +81,20 @@ namespace Identity.Controllers
         [HttpPost]
         public async Task<IActionResult> UserEdit(UserViewModel model)
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            CurrentUser.UserName = model.UserName;
+            CurrentUser.Email = model.Email;
+            CurrentUser.PhoneNumber = model.PhoneNumber;
+            CurrentUser.City = model.City;
+            CurrentUser.Gender = model.Gender;
+            CurrentUser.BirthDate = model.BirthDate;
 
-            user.UserName = model.UserName;
-            user.Email = model.Email;
-            user.PhoneNumber = model.PhoneNumber;
-            user.City = model.City;
-            user.Gender = model.Gender;
-            user.BirthDate = model.BirthDate;
-
-            var result = await _userManager.UpdateAsync(user);
+            var result = await _userManager.UpdateAsync(CurrentUser);
             if (result.Succeeded)
             {
-                await _userManager.UpdateSecurityStampAsync(user);
+                await _userManager.UpdateSecurityStampAsync(CurrentUser);
 
                 await _signInManager.SignOutAsync();
-                await _signInManager.SignInAsync(user, true);
+                await _signInManager.SignInAsync(CurrentUser, true);
 
                 return View(model);
             }
