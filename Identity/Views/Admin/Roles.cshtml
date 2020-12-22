@@ -14,7 +14,12 @@
     <ul>
         @foreach (var role in Model)
         {
-            <li>@role.Name</li>
+            <li style="display: flex;">
+                <p style="margin: 0 5px 0 0;">@role.Name</p>
+                <form asp-action="DeleteRole" asp-route-id="@role.Id" method="post">
+                    <button type="submit">Sil</button>
+                </form>
+            </li>
         }
     </ul>
 }

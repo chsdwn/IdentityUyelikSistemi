@@ -47,5 +47,18 @@ namespace Identity.Controllers
 
             return BadRequest("Rol oluşturma sırasında hata oluştu.");
         }
+
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role is null)
+                return BadRequest("Rol Bulunamadı");
+
+            var result = await _roleManager.DeleteAsync(role);
+            if (result.Succeeded)
+                return RedirectToAction(nameof(Roles));
+
+            return BadRequest("Rol silinirken hata oluştu");
+        }
     }
 }
