@@ -1,0 +1,21 @@
+@model List<System.Security.Claims.Claim>
+
+@{
+    ViewData["Title"] = "Üyeler";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Claims</h1>
+
+<ul>
+    @foreach (var claim in Model)
+    {
+        <li>
+            @claim.Subject.Name <br>
+            @claim.Issuer <br>
+            @claim.Type <br>
+            @claim.Value
+        </li>
+        <hr>
+    }
+</ul>

@@ -139,7 +139,13 @@ namespace Identity.Controllers
             }
 
             return RedirectToAction(nameof(Users));
+        }
 
+        public IActionResult Claims()
+        {
+            var claims = User.Claims;
+
+            return View(claims.ToList());
         }
     }
 }
