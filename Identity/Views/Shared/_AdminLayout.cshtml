@@ -8,11 +8,21 @@
 
 <body>
     <nav>
-        <a asp-action="Index" asp-controller="Home">Home</a>
+        <a asp-action="Index" asp-controller="Admin">Ana Sayfa</a>
     </nav>
 
-    <div>
-        @RenderBody()
+    <div style="display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                margin-top: 16px;">
+        <div>
+            @RenderBody()
+        </div>
+        <div style="display: flex; flex-direction: column;">
+            <a asp-action="Users" asp-controller="Admin">Üyeler</a>
+            <a asp-action="Roles" asp-controller="Admin">Roller</a>
+            <a asp-action="Logout" asp-controller="Member" asp-route-returnUrl="/home/index">Logout</a>
+        </div>
     </div>
 </body>
 

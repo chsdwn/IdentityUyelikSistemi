@@ -68,12 +68,14 @@ namespace Identity
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = new PathString("/home/login");
+                // Bu action çağırılırken belirtilen return url'e otomatik gitmesini sağlar.
+                options.LogoutPath = new PathString("/member/logout");
+                options.AccessDeniedPath = new PathString("/member/accessdenied");
+
                 options.Cookie = cookie;
                 // Cookie ömrü bitmeden istek yaparsa cookie ömrü kadar daha uzar.
                 options.SlidingExpiration = true;
                 options.ExpireTimeSpan = TimeSpan.FromDays(60);
-                // Bu action çağırılırken belirtilen return url'e otomatik gitmesini sağlar.
-                options.LogoutPath = new PathString("/member/logout");
             });
 
             services.AddMailKit(options =>

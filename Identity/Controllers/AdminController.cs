@@ -5,18 +5,29 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.Controllers
 {
-    public class AdminController : Controller
+    public class AdminController : BaseController
     {
-        private readonly UserManager<AppUser> _userManager;
-
-        public AdminController(UserManager<AppUser> userManager)
+        public AdminController(
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
+            RoleManager<AppRole> roleManager)
+            : base(userManager, signInManager, roleManager)
         {
-            _userManager = userManager;
         }
 
         public IActionResult Index()
         {
+            return View();
+        }
+
+        public IActionResult Users()
+        {
             return View(_userManager.Users.ToList());
+        }
+
+        public IActionResult Roles()
+        {
+            return View();
         }
     }
 }

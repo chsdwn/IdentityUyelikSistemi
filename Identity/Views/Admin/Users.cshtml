@@ -1,0 +1,18 @@
+@model List<AppUser>
+
+@{
+    ViewData["Title"] = "Üyeler";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Üyeler</h1>
+
+@if (Model.Any())
+{
+    <ul>
+        @foreach (var user in Model)
+        {
+            <li>@user.Id: @user.UserName - @user.Email</li>
+        }
+    </ul>
+}
