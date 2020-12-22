@@ -110,8 +110,15 @@ namespace Identity.Controllers
             await _signInManager.SignOutAsync();
         }
 
-        public IActionResult AccessDenied()
+        public IActionResult AccessDenied(string ReturnUrl)
         {
+            if (ReturnUrl.ToLower().Contains(nameof(IstanbulPage).ToLower()))
+                return BadRequest("İstanbul'da yaşamadığınız için bu sayfaya erişemezsiniz.");
+
+            if (ReturnUrl.ToLower().Contains(nameof(ViolancePage).ToLower()))
+                return BadRequest("15 yaşından küçük olduğunuz için şiddet " +
+                    "videoları içeren sayfaya erişemezsiniz.");
+
             return View();
         }
 
@@ -129,6 +136,12 @@ namespace Identity.Controllers
 
         [Authorize(Policy = "IstanbulPolicy")]
         public IActionResult IstanbulPage()
+        {
+            return View();
+        }
+
+        [Authorize(Policy = "ViolencePolicy")]
+        public IActionResult ViolancePage()
         {
             return View();
         }

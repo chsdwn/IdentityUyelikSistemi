@@ -41,6 +41,7 @@ namespace Identity
                 // [Authorize(Policy = "IstanbulPolicy")] kullanılan action/controller'a 
                 // city claim'i İstanbul değerine sahip olmayan kullanıcılar erişemez.
                 options.AddPolicy("IstanbulPolicy", policy => policy.RequireClaim("city", "İstanbul"));
+                options.AddPolicy("ViolencePolicy", policy => policy.RequireClaim("violence"));
             });
 
             services.AddIdentity<AppUser, AppRole>(options =>

@@ -1,3 +1,4 @@
+using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Identity.Models;
@@ -24,12 +25,17 @@ namespace Identity.ClaimProviders
                 // User.Identity
                 var identity = principal.Identity as ClaimsIdentity;
                 var user = await _userManager.FindByNameAsync(identity.Name);
-                if (user != null &&
-                    user.City != null &&
-                    !principal.HasClaim(c => c.Type == "city"))
+                if (user != null)
                 {
-                    var cityClaim = new Claim("city", user.City, ClaimValueTypes.String, "Internal");
-                    identity.AddClaim(cityClaim);
+                    if (user.BirthDate != null)
+                    {
+                        var age = DateTime.UtcNow.Year - user.BirthDate?.Year;
+                        if (age > 15)
+                            identity.AddClaim(new Claim("violence", "true", ClaimValueTypes.Boolean, "Internal"));
+                    }
+
+                    if (user.City != null && !principal.HasClaim(c => c.Type == "city"))
+                        identity.AddClaim(new Claim("city", user.City, ClaimValueTypes.String, "Internal"));
                 }
             }
 
