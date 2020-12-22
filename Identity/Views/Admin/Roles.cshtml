@@ -1,0 +1,20 @@
+@model List<AppRole>
+
+@{
+    ViewData["Title"] = "Roller";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<a asp-action="CreateRole">Role Oluştur</a>
+
+<h1>Roller</h1>
+
+@if (Model.Any())
+{
+    <ul>
+        @foreach (var role in Model)
+        {
+            <li>@role.Name</li>
+        }
+    </ul>
+}

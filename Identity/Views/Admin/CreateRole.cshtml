@@ -1,0 +1,13 @@
+@model Identity.ViewModels.RoleViewModel
+
+@{
+    ViewData["Title"] = "Rol Oluştur";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Rol Oluştur</h1>
+
+<form asp-action="CreateRole">
+    <input asp-for="Name" placeholder="Role Adı">
+    <button type="submit">Kaydet</button>
+</form>
