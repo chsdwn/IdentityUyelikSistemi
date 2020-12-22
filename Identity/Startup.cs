@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Identity.ClaimProviders;
 using Identity.CustomValidation;
 using Identity.Data;
 using Identity.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +35,13 @@ namespace Identity
         {
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("Sqlite")));
+
+            services.AddAuthorization(options =>
+            {
+                // [Authorize(Policy = "IstanbulPolicy")] kullanılan action/controller'a 
+                // city claim'i İstanbul değerine sahip olmayan kullanıcılar erişemez.
+                options.AddPolicy("IstanbulPolicy", policy => policy.RequireClaim("city", "İstanbul"));
+            });
 
             services.AddIdentity<AppUser, AppRole>(options =>
             {
@@ -89,6 +98,7 @@ namespace Identity
                 });
             });
 
+            services.AddScoped<IClaimsTransformation, ClaimProvider>();
             services.AddControllersWithViews();
         }
 

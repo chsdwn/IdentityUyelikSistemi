@@ -126,5 +126,11 @@ namespace Identity.Controllers
         {
             return View();
         }
+
+        [Authorize(Policy = "IstanbulPolicy")]
+        public IActionResult IstanbulPage()
+        {
+            return View();
+        }
     }
 }
