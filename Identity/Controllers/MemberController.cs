@@ -24,7 +24,7 @@ namespace Identity.Controllers
             var model = CurrentUser.Adapt<UserViewModel>();
 
             var phoneNumber = model.PhoneNumber;
-            if (phoneNumber.Length == 10)
+            if (phoneNumber != null && phoneNumber.Length == 10)
             {
                 // 0 (xxx) xxx xx xx
                 var phoneNumberMasked = $"0 ({phoneNumber[0]}{phoneNumber[1]}{phoneNumber[2]}) " +
@@ -111,6 +111,18 @@ namespace Identity.Controllers
         }
 
         public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Editor, Admin")]
+        public IActionResult Editor()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Manager, Admin")]
+        public IActionResult Manager()
         {
             return View();
         }
