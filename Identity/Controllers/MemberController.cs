@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Identity.Models;
 using Identity.ViewModels;
@@ -119,6 +120,9 @@ namespace Identity.Controllers
                 return BadRequest("15 yaşından küçük olduğunuz için şiddet " +
                     "videoları içeren sayfaya erişemezsiniz.");
 
+            if (ReturnUrl.ToLower().Contains(nameof(Exchange).ToLower()))
+                return BadRequest("Deneme sürümü sona erdi.");
+
             return View();
         }
 
@@ -142,6 +146,30 @@ namespace Identity.Controllers
 
         [Authorize(Policy = "ViolencePolicy")]
         public IActionResult ViolancePage()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> ExchangeRedirect()
+        {
+            if (!User.HasClaim(c => c.Type == "ExchangeExpireDate"))
+            {
+                await _userManager.AddClaimAsync(CurrentUser, new Claim(
+                    "ExchangeExpireDate",
+                     DateTime.UtcNow.AddDays(30).Date.ToShortDateString(),
+                     ClaimValueTypes.String,
+                     "Internal"
+                ));
+
+                await _signInManager.SignOutAsync();
+                await _signInManager.SignInAsync(CurrentUser, true);
+            }
+
+            return RedirectToAction(nameof(Exchange));
+        }
+
+        [Authorize(Policy = "ExchangePolicy")]
+        public IActionResult Exchange()
         {
             return View();
         }

@@ -7,6 +7,7 @@ using Identity.CustomValidation;
 using Identity.Data;
 using Identity.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NETCore.MailKit.Extensions;
 using NETCore.MailKit.Infrastructure.Internal;
+using static Identity.Requirements;
 
 namespace Identity
 {
@@ -42,6 +44,8 @@ namespace Identity
                 // city claim'i İstanbul değerine sahip olmayan kullanıcılar erişemez.
                 options.AddPolicy("IstanbulPolicy", policy => policy.RequireClaim("city", "İstanbul"));
                 options.AddPolicy("ViolencePolicy", policy => policy.RequireClaim("violence"));
+                options.AddPolicy("ExchangePolicy", policy =>
+                    policy.AddRequirements(new ExchangeExpireDateRequirement()));
             });
 
             services.AddIdentity<AppUser, AppRole>(options =>
@@ -100,6 +104,9 @@ namespace Identity
             });
 
             services.AddScoped<IClaimsTransformation, ClaimProvider>();
+
+            services.AddTransient<IAuthorizationHandler, ExchangeExpireDateHandler>();
+
             services.AddControllersWithViews();
         }
 
