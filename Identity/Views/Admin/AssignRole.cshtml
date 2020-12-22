@@ -1,0 +1,23 @@
+@model List<Identity.ViewModels.AssignRoleViewModel>
+
+@{
+    ViewData["Title"] = "Roller";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Rol Ata</h1>
+
+<form asp-action="AssignRole">
+    <ul>
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            <li>
+                <input asp-for="@Model[i].Id" hidden>
+                <input asp-for="@Model[i].Name" hidden>
+                <input type="checkbox" asp-for="@Model[i].IsChecked"> @Model[i].Name
+            </li>
+        }
+    </ul>
+
+    <button type=submit>Kaydet</button>
+</form>

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Identity.Models;
@@ -84,6 +86,58 @@ namespace Identity.Controllers
                 return RedirectToAction(nameof(Roles));
 
             return BadRequest("Rol güncellenirken hata oluştu");
+        }
+
+        public async Task<IActionResult> AssignRole(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return BadRequest("Kullanıcı bulunamadı");
+
+            var roles = _roleManager.Roles;
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var roleViewModels = new List<AssignRoleViewModel>();
+
+            foreach (var role in roles)
+            {
+                var isChecked = false;
+                if (userRoles.Contains(role.Name))
+                    isChecked = true;
+
+                roleViewModels.Add(new AssignRoleViewModel
+                {
+                    Id = role.Id,
+                    Name = role.Name,
+                    IsChecked = isChecked
+                });
+            }
+
+            return View(roleViewModels);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignRole(string id, List<AssignRoleViewModel> roles)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return BadRequest("Kullanıcı bulunamadı");
+
+            foreach (var role in roles)
+            {
+                if (role.IsChecked)
+                {
+                    if (!await _userManager.IsInRoleAsync(user, role.Name))
+                        await _userManager.AddToRoleAsync(user, role.Name);
+                }
+                else
+                {
+                    if (await _userManager.IsInRoleAsync(user, role.Name))
+                        await _userManager.RemoveFromRoleAsync(user, role.Name);
+                }
+            }
+
+            return RedirectToAction(nameof(Users));
+
         }
     }
 }
