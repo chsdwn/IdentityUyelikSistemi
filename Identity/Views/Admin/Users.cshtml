@@ -14,6 +14,7 @@
         {
             <li>
                 @user.Id: @user.UserName - @user.Email
+                <p user-roles="@user.Id"></p>
                 <a asp-action="AssignRole" asp-route-id="@user.Id">Rol Ata</a>
             </li>
         }
