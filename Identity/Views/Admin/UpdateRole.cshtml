@@ -1,0 +1,14 @@
+@model Identity.ViewModels.RoleViewModel
+
+@{
+    ViewData["Title"] = "Roller";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>@Model.Name Rolünü Güncelle</h1>
+
+<form asp-action="UpdateRole">
+    <input asp-for="Id" hidden>
+    <input asp-for="Name" placeholder="Role Adı">
+    <button type="submit">Güncelle</button>
+</form>

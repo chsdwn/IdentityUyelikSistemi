@@ -16,6 +16,7 @@
         {
             <li style="display: flex;">
                 <p style="margin: 0 5px 0 0;">@role.Name</p>
+                <a asp-action="UpdateRole" asp-route-id="@role.Id" style="margin: 0 5px 0 0;">Güncelle</a>
                 <form asp-action="DeleteRole" asp-route-id="@role.Id" method="post">
                     <button type="submit">Sil</button>
                 </form>

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Identity.Models;
 using Identity.ViewModels;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -59,6 +60,30 @@ namespace Identity.Controllers
                 return RedirectToAction(nameof(Roles));
 
             return BadRequest("Rol silinirken hata oluştu");
+        }
+
+        public async Task<IActionResult> UpdateRole(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role is null)
+                return RedirectToAction(nameof(Roles));
+
+            return View(role.Adapt<RoleViewModel>());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateRole(RoleViewModel model)
+        {
+            var role = await _roleManager.FindByIdAsync(model.Id);
+            if (role is null)
+                return RedirectToAction(nameof(Roles));
+
+            role.Name = model.Name;
+            var result = await _roleManager.UpdateAsync(role);
+            if (result.Succeeded)
+                return RedirectToAction(nameof(Roles));
+
+            return BadRequest("Rol güncellenirken hata oluştu");
         }
     }
 }
