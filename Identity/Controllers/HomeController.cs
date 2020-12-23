@@ -49,10 +49,13 @@ namespace Identity.Controllers
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user is null)
-                return BadRequest();
+                return BadRequest("Kullanıcı bulunamadı");
+
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+                return BadRequest("Giriş yapmak için email adresinizi doğrulayın.");
 
             if (await _userManager.IsLockedOutAsync(user))
-                Console.WriteLine("Hesabınız kilitlenmiştir. 20 dakika sonra tekrar deneyin.");
+                return BadRequest("Hesabınız kilitlenmiştir. 20 dakika sonra tekrar deneyin.");
 
             var result = await _signInManager.PasswordSignInAsync(
                 user,
@@ -82,13 +85,11 @@ namespace Identity.Controllers
                         user,
                         new DateTimeOffset(DateTime.UtcNow.AddMinutes(20)));
 
-                    Console.WriteLine("3 başarısız giriş denemesi yaptığınız için hesabınız 20 dk kitlenmiştir");
+                    return BadRequest("3 başarısız giriş denemesi yaptığınız için hesabınız 20 dk kitlenmiştir");
                 }
             }
 
-            Console.WriteLine("Kullanıcı adı veya şifre yanlış");
-
-            return View();
+            return BadRequest("Kullanıcı adı veya şifre yanlış");
         }
 
         public IActionResult SignUp()
@@ -111,7 +112,17 @@ namespace Identity.Controllers
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
+            {
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var link = Url.Action(
+                    "ConfirmEmail",
+                    "Home",
+                    new { userId = user.Id, token },
+                    HttpContext.Request.Scheme);
+
+                await _emailService.SendAsync(model.Email, "Email Doğrula", $"<a href=\"{link}\">Doğrula</a>");
                 return RedirectToAction("Login");
+            }
 
             return View();
         }
@@ -135,7 +146,7 @@ namespace Identity.Controllers
                 new { userId = user.Id, token },
                 HttpContext.Request.Scheme);
 
-            await _emailService.SendAsync(model.Email, "Şifre Sıfırlama", $"<a href=\"{link}\">Verify</a>");
+            await _emailService.SendAsync(model.Email, "Şifre Sıfırlama", $"<a href=\"{link}\">Sıfırla</a>");
 
             return View();
         }
@@ -175,6 +186,17 @@ namespace Identity.Controllers
             }
 
             return View();
+        }
+
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+                return RedirectToAction("Login");
+
+            return BadRequest();
         }
     }
 }
