@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Identity.Models;
 using Identity.ViewModels;
@@ -197,6 +198,58 @@ namespace Identity.Controllers
                 return RedirectToAction("Login");
 
             return BadRequest();
+        }
+
+        public IActionResult FacebookLogin(string ReturnUrl)
+        {
+            var redirectUrl = Url.Action("ExternalResponse", "Home", new { ReturnUrl });
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", redirectUrl);
+
+            return new ChallengeResult("Facebook", properties);
+        }
+
+        public async Task<IActionResult> ExternalResponse(string ReturnUrl = "/")
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info is null)
+                return RedirectToAction("Login");
+
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
+            if (result.Succeeded)
+                return Redirect(ReturnUrl);
+
+            var email = info.Principal.FindFirst(ClaimTypes.Email).Value;
+            var id = info.Principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            var user = new AppUser
+            {
+                Email = email,
+                Id = id
+            };
+
+            if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Name))
+                user.UserName = info.Principal
+                    .FindFirst(ClaimTypes.Name).Value
+                    .Replace(' ', '-')
+                    .ToLower() + id;
+            else
+                user.UserName = email;
+
+            var creationResult = await _userManager.CreateAsync(user);
+            if (creationResult.Succeeded)
+            {
+                var loginResult = await _userManager.AddLoginAsync(user, info);
+                if (loginResult.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, false);
+                    return Redirect(ReturnUrl);
+                }
+                else
+                    return BadRequest(loginResult);
+            }
+
+            return BadRequest(creationResult);
         }
     }
 }

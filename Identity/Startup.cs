@@ -48,6 +48,13 @@ namespace Identity
                     policy.AddRequirements(new ExchangeExpireDateRequirement()));
             });
 
+            services.AddAuthentication()
+                .AddFacebook(options =>
+                {
+                    options.AppId = Configuration["Authentication:Facebook:AppId"];
+                    options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+                });
+
             services.AddIdentity<AppUser, AppRole>(options =>
             {
                 options.Password.RequiredLength = 4;
@@ -57,7 +64,7 @@ namespace Identity
                 options.Password.RequireDigit = false;
 
                 options.User.RequireUniqueEmail = true;
-                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
+                options.User.AllowedUserNameCharacters = "abcçdefgğhıijklmnoöpqrsştuüvwxyzABCÇDEFGĞHIİJKLMNOÖPQRSTUÜVWXYZ0123456789_-";
             })
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
                 .AddPasswordValidator<CustomPasswordValidator>()
