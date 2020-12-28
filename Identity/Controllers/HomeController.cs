@@ -210,6 +210,14 @@ namespace Identity.Controllers
 
             return new ChallengeResult("Facebook", properties);
         }
+        public IActionResult GoogleLogin(string ReturnUrl)
+        {
+            var redirectUrl = Url.Action("ExternalResponse", "Home", new { ReturnUrl });
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+
+            return new ChallengeResult("Google", properties);
+        }
 
         public async Task<IActionResult> ExternalResponse(string ReturnUrl = "/")
         {

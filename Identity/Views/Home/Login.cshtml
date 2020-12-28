@@ -13,5 +13,8 @@
     <button type="submit">Giriş</button>
 </form>
 
-<a asp-action="FacebookLogin">Facebook ile Giriş Yap</a>
-<a asp-action="ResetPassword">Şifremi unuttum</a>
+<div style="display: flex; flex-direction: column;">
+    <a asp-action="FacebookLogin">Facebook ile Giriş Yap</a>
+    <a asp-action="GoogleLogin">Google ile Giriş Yap</a>
+    <a asp-action="ResetPassword">Şifremi unuttum</a>
+</div>
