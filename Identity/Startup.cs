@@ -58,6 +58,11 @@ namespace Identity
                 {
                     options.ClientId = Configuration["Authentication:Google:ClientId"];
                     options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+                })
+                .AddMicrosoftAccount(options =>
+                {
+                    options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
                 });
 
             services.AddIdentity<AppUser, AppRole>(options =>

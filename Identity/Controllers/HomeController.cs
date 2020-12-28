@@ -219,6 +219,15 @@ namespace Identity.Controllers
             return new ChallengeResult("Google", properties);
         }
 
+        public IActionResult MicrosoftLogin(string ReturnUrl)
+        {
+            var redirectUrl = Url.Action("ExternalResponse", "Home", new { ReturnUrl });
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Microsoft", redirectUrl);
+
+            return new ChallengeResult("Microsoft", properties);
+        }
+
         public async Task<IActionResult> ExternalResponse(string ReturnUrl = "/")
         {
             var info = await _signInManager.GetExternalLoginInfoAsync();
@@ -248,22 +257,32 @@ namespace Identity.Controllers
 
             var errors = new List<string>();
 
-            var creationResult = await _userManager.CreateAsync(user);
-            if (creationResult.Succeeded)
+            var isUserAlreadyRegistered = await _userManager.FindByEmailAsync(user.Email) != null;
+            if (!isUserAlreadyRegistered)
             {
-                var loginResult = await _userManager.AddLoginAsync(user, info);
-                if (loginResult.Succeeded)
+                var creationResult = await _userManager.CreateAsync(user);
+                if (creationResult.Succeeded)
                 {
-                    await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
-                    return Redirect(ReturnUrl);
+                    var loginResult = await _userManager.AddLoginAsync(user, info);
+                    if (loginResult.Succeeded)
+                    {
+                        await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
+                        return Redirect(ReturnUrl);
+                    }
+                    else
+                        foreach (var error in loginResult.Errors.Select(e => e.Description).ToList())
+                            errors.Add(error);
                 }
-                else
-                    foreach (var error in loginResult.Errors.Select(e => e.Description).ToList())
-                        errors.Add(error);
-            }
 
-            foreach (var error in creationResult.Errors.Select(e => e.Description).ToList())
-                errors.Add(error);
+                foreach (var error in creationResult.Errors.Select(e => e.Description).ToList())
+                    errors.Add(error);
+            }
+            else
+            {
+                var alreadyCreatedUser = await _userManager.FindByEmailAsync(user.Email);
+                await _userManager.AddLoginAsync(alreadyCreatedUser, info);
+                return Redirect(ReturnUrl);
+            }
 
             return View("Error", errors);
         }
