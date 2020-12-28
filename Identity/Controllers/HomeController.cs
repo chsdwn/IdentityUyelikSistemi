@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Identity.Models;
@@ -236,20 +238,31 @@ namespace Identity.Controllers
             else
                 user.UserName = email;
 
+            var errors = new List<string>();
+
             var creationResult = await _userManager.CreateAsync(user);
             if (creationResult.Succeeded)
             {
                 var loginResult = await _userManager.AddLoginAsync(user, info);
                 if (loginResult.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, false);
+                    await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
                     return Redirect(ReturnUrl);
                 }
                 else
-                    return BadRequest(loginResult);
+                    foreach (var error in loginResult.Errors.Select(e => e.Description).ToList())
+                        errors.Add(error);
             }
 
-            return BadRequest(creationResult);
+            foreach (var error in creationResult.Errors.Select(e => e.Description).ToList())
+                errors.Add(error);
+
+            return View("Error", errors);
+        }
+
+        public IActionResult Error()
+        {
+            return View();
         }
     }
 }
